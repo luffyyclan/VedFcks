@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — SecureAccess</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #16161f;
+    --border: #1e1e2e;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+    --accent: #7c6af7;
+    --success: #22c55e;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Space Grotesk', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,106,247,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,106,247,0.025) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── Navbar ─── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10, 10, 15, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-logo { display: flex; align-items: center; gap: 10px; }
+
+  .nav-logo-icon {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--accent), #a78bfa);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .nav-logo-icon svg { width: 14px; height: 14px; fill: white; }
+
+  .nav-title { font-size: 14px; font-weight: 600; }
+
+  .nav-right { display: flex; align-items: center; gap: 16px; }
+
+  .user-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 5px 12px 5px 8px;
+    border-radius: 100px;
+    font-size: 12px; color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  .user-avatar {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #a78bfa);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600; color: white;
+  }
+
+  .logout-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 14px;
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 12px;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .logout-btn:hover { color: var(--text); border-color: #3b3b5e; }
+
+  /* ─── Main content ─── */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+    position: relative; z-index: 1;
+  }
+
+  .page-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .access-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(34,197,94,0.08);
+    border: 1px solid rgba(34,197,94,0.2);
+    padding: 4px 12px; border-radius: 100px;
+    font-size: 11px; color: var(--success);
+    font-family: var(--mono); letter-spacing: 0.06em;
+    margin-bottom: 1rem;
+  }
+
+  .badge-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--success); animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .page-header h1 { font-size: 26px; font-weight: 600; margin-bottom: 0.5rem; }
+  .page-header p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  /* ─── Key info card ─── */
+  .key-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex; align-items: center; gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .key-card-item { flex: 1; min-width: 140px; }
+  .key-label { font-size: 11px; color: var(--muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .key-value { font-size: 13px; color: var(--text); font-family: var(--mono); }
+  .key-value.accent { color: var(--accent); }
+
+  /* ─── Content grid ─── */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+
+  .content-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    transition: border-color 0.2s;
+  }
+
+  .content-card:hover { border-color: #3b3b5e; }
+
+  .card-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1rem; font-size: 18px;
+  }
+
+  .card-icon.purple { background: rgba(124,106,247,0.15); }
+  .card-icon.green { background: rgba(34,197,94,0.1); }
+  .card-icon.amber { background: rgba(251,191,36,0.1); }
+
+  .content-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 0.4rem; }
+  .content-card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* ─── Protected content placeholder ─── */
+  .protected-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 2rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  .protected-box strong { color: var(--text); display: block; font-size: 15px; margin-bottom: 0.5rem; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 4l5 2.18V11c0 3.5-2.33 6.79-5 7.93C9.33 17.79 7 14.5 7 11V7.18L12 5z"/></svg>
+    </div>
+    <span class="nav-title">SecureAccess</span>
+  </div>
+
+  <div class="nav-right">
+    <div class="user-pill">
+      <div class="user-avatar" id="avatar-initials">U</div>
+      <span id="nav-username">User</span>
+    </div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div class="access-badge"><div class="badge-dot"></div> ACCESS GRANTED</div>
+    <h1 id="welcome-heading">Welcome back</h1>
+    <p>You have full access to this private portal. Your session is active.</p>
+  </div>
+
+  <div class="key-card">
+    <div class="key-card-item">
+      <div class="key-label">Your Key</div>
+      <div class="key-value accent" id="display-key">—</div>
+    </div>
+    <div class="key-card-item">
+      <div class="key-label">Status</div>
+      <div class="key-value" style="color: var(--success);">Active</div>
+    </div>
+    <div class="key-card-item">
+      <div class="key-label">Expires</div>
+      <div class="key-value" id="display-expiry">—</div>
+    </div>
+    <div class="key-card-item">
+      <div class="key-label">Session</div>
+      <div class="key-value" id="display-session">—</div>
+    </div>
+  </div>
+
+  <!-- ✏️ YOUR PROTECTED CONTENT GOES BELOW THIS LINE -->
+  <div class="grid">
+    <div class="content-card">
+      <div class="card-icon purple">📦</div>
+      <h3>Your Products</h3>
+      <p>Access all purchased products, download links, and license files from here.</p>
+    </div>
+    <div class="content-card">
+      <div class="card-icon green">📄</div>
+      <h3>Documentation</h3>
+      <p>Setup guides, tutorials, and API references for premium members only.</p>
+    </div>
+    <div class="content-card">
+      <div class="card-icon amber">💬</div>
+      <h3>Private Support</h3>
+      <p>Direct support channel with priority response for key holders.</p>
+    </div>
+  </div>
+
+  <div class="protected-box">
+    <strong>🔒 This is your protected content area</strong>
+    Edit <code>protected.html</code> to replace this with your actual products, files, or content.
+  </div>
+</main>
+
+<script>
+  // Check auth on load
+  const authKey = sessionStorage.getItem('auth_key');
+  const authUser = sessionStorage.getItem('auth_user');
+  const authExpires = sessionStorage.getItem('auth_expires');
+
+  if (!authKey) {
+    window.location.href = '/';
+  } else {
+    // Set UI
+    document.getElementById('welcome-heading').textContent = `Welcome, ${authUser}`;
+    document.getElementById('nav-username').textContent = authUser;
+    document.getElementById('avatar-initials').textContent = authUser.charAt(0).toUpperCase();
+    document.getElementById('display-key').textContent = authKey;
+
+    const exp = authExpires === 'never' ? 'Never' : new Date(authExpires).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    document.getElementById('display-expiry').textContent = exp;
+
+    const sessionTime = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('display-session').textContent = `Started ${sessionTime}`;
+  }
+
+  function logout() {
+    sessionStorage.clear();
+    window.location.href = '/';
+  }
+</script>
+</body>
+</html>
